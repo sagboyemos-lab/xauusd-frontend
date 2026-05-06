@@ -101,7 +101,7 @@ async function loadAll(){
     log.unshift({...best,logged:new Date().toISOString()});
     if(log.length>15)log.pop();
     const conf=Math.round((best.confidence||0)*100);
-    const activeCount=all.filter(s=>s.type!=='HOLD').length;
+    const activeCount=Array.isArray(all)?all.filter(s=>s.type!=='HOLD').length:0;
     document.getElementById('main-content').innerHTML=`
       <div class="card price-card">
         <div class="card-label">Gold Price</div>
@@ -123,7 +123,7 @@ async function loadAll(){
       </div>
       <div class="section-title">All Strategies</div>
       <div class="strategies-grid">
-        ${all.map(s=>`
+        ${(Array.isArray(all)?all:[]).map(s=>`
           <div class="strategy-card ${scls(s.type)}">
             <div class="strategy-left">
               <div class="strategy-name">${s.strategy}</div>
