@@ -98,7 +98,7 @@ async function loadAll(){
     const[sigRes,allRes]=await Promise.all([fetch(API+'/signal'),fetch(API+'/all-signals')]);
     const best=await sigRes.json();
     const all=await allRes.json();
-    log.unshift({...best,logged:new Date().toISOString()});
+    if(best.price) log.unshift({...best,logged:new Date().toISOString()});
     if(log.length>15)log.pop();
     const conf=Math.round((best.confidence||0)*100);
     const activeCount=Array.isArray(all)?all.filter(s=>s.type!=='HOLD').length:0;
