@@ -47,10 +47,20 @@
   .strategy-name{font-size:13px;font-weight:700;margin-bottom:4px;}
   .strategy-reason{font-family:var(--mono);font-size:10px;color:var(--muted);line-height:1.4;}
   .strategy-badge{padding:4px 10px;border-radius:4px;font-size:11px;font-weight:700;letter-spacing:1px;white-space:nowrap;margin-left:10px;}
-  .stats-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
-  .stat-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px;}
-  .stat-value{font-size:16px;font-weight:700;color:var(--text);margin-top:4px;}
-
+  /* Trend card */
+  .trend-card{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .trend-box{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center;}
+  .trend-label{font-family:var(--mono);font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;}
+  .trend-value{font-size:15px;font-weight:700;}
+  /* News card */
+  .news-item{padding:10px 0;border-bottom:1px solid var(--border);}
+  .news-item:last-child{border-bottom:none;}
+  .news-headline{font-size:12px;font-weight:600;line-height:1.4;margin-bottom:4px;}
+  .news-meta{display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:10px;color:var(--muted);}
+  .news-impact{padding:2px 6px;border-radius:3px;font-size:9px;font-weight:700;letter-spacing:1px;}
+  .news-impact.HIGH{background:rgba(239,68,68,0.15);color:var(--sell);}
+  .news-impact.NORMAL{background:rgba(148,163,184,0.1);color:var(--muted);}
+  .news-block-warning{background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:8px;padding:10px 14px;font-family:var(--mono);font-size:11px;color:#fca5a5;margin-bottom:10px;}
   /* Scalp section */
   .section-divider{display:flex;align-items:center;gap:10px;margin:4px 0;}
   .section-divider-line{flex:1;height:1px;background:var(--border);}
@@ -63,7 +73,9 @@
   .indicator-box{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:10px;text-align:center;}
   .indicator-label{font-family:var(--mono);font-size:9px;color:var(--muted);margin-bottom:4px;text-transform:uppercase;letter-spacing:1px;}
   .indicator-value{font-family:var(--mono);font-size:13px;font-weight:600;}
-
+  .stats-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .stat-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px;}
+  .stat-value{font-size:16px;font-weight:700;color:var(--text);margin-top:4px;}
   .log-entry{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);font-family:var(--mono);font-size:12px;}
   .log-entry:last-child{border-bottom:none;}
   .log-badge{padding:2px 8px;border-radius:4px;font-size:10px;font-weight:700;letter-spacing:1px;}
@@ -96,47 +108,64 @@
 <script>
 const API='https://xauusd-bot-production-2474.up.railway.app/api';
 const log=[];
-
 function fmt(n){if(n==null)return'—';return'$'+Number(n).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});}
 function timeAgo(iso){const d=Math.floor((Date.now()-new Date(iso))/1000);if(d<60)return d+'s ago';if(d<3600)return Math.floor(d/60)+'m ago';return Math.floor(d/3600)+'h ago';}
 function sc(t){return t==='BUY'?'var(--buy)':t==='SELL'?'var(--sell)':'var(--hold)';}
 function sb(t){return t==='BUY'?'rgba(34,197,94,0.15)':t==='SELL'?'rgba(239,68,68,0.15)':'rgba(148,163,184,0.1)';}
 function sbo(t){return t==='BUY'?'rgba(34,197,94,0.3)':t==='SELL'?'rgba(239,68,68,0.3)':'rgba(148,163,184,0.2)';}
 function scls(t){return t==='BUY'?'active-buy':t==='SELL'?'active-sell':'';}
-
-function extractIndicator(reason, key) {
-  const match = reason.match(new RegExp(key+'=([\\d.\\-]+)'));
-  return match ? match[1] : '—';
-}
+function extractIndicator(reason,key){const m=reason.match(new RegExp(key+'=([\\d.\\-]+)'));return m?m[1]:'—';}
+function trendColor(t){return t==='UPTREND'?'var(--buy)':t==='DOWNTREND'?'var(--sell)':'var(--hold)';}
+function trendEmoji(t){return t==='UPTREND'?'↑':t==='DOWNTREND'?'↓':'→';}
 
 async function loadAll(){
   try{
-    const[sigRes,allRes,scalpRes]=await Promise.all([
+    const[sigRes,allRes,scalpRes,newsRes]=await Promise.all([
       fetch(API+'/signal'),
       fetch(API+'/all-signals'),
-      fetch(API+'/scalp-signal')
+      fetch(API+'/scalp-signal'),
+      fetch(API+'/news'),
     ]);
     const best=await sigRes.json();
     const all=await allRes.json();
     const scalp=await scalpRes.json();
+    const newsData=await newsRes.json();
 
-    log.unshift({...best,logged:new Date().toISOString()});
+    if(best.price) log.unshift({...best,logged:new Date().toISOString()});
     if(log.length>15)log.pop();
 
     const conf=Math.round((best.confidence||0)*100);
-    const activeCount=all.filter(s=>s.type!=='HOLD').length;
+    const activeCount=Array.isArray(all)?all.filter(s=>s.type!=='HOLD').length:0;
     const scalpConf=Math.round((scalp.confidence||0)*100);
-    const rsi=extractIndicator(scalp.reason,'RSI');
-    const macd=extractIndicator(scalp.reason,'MACD');
+    const rsi=extractIndicator(scalp.reason||'','RSI');
+    const macd=extractIndicator(scalp.reason||'','MACD');
+    const trend=best.trend||'NEUTRAL';
+    const ema200=best.ema200||0;
+    const newsBlock=best.news_block||false;
+    const articles=newsData.articles||[];
 
     document.getElementById('main-content').innerHTML=`
 
-      <!-- Price -->
+      <!-- Price + Trend -->
       <div class="card price-card">
         <div class="card-label">Gold Price</div>
         <div class="price-value">${fmt(best.price)}</div>
         <div class="price-sub">XAU/USD · live · ${activeCount} active signal${activeCount!==1?'s':''}</div>
       </div>
+
+      <!-- Trend Info -->
+      <div class="trend-card">
+        <div class="trend-box" style="border-color:${trendColor(trend)}33">
+          <div class="trend-label">Trend (EMA 200)</div>
+          <div class="trend-value" style="color:${trendColor(trend)}">${trendEmoji(trend)} ${trend}</div>
+        </div>
+        <div class="trend-box">
+          <div class="trend-label">EMA 200</div>
+          <div class="trend-value" style="color:var(--gold)">${fmt(ema200)}</div>
+        </div>
+      </div>
+
+      ${newsBlock?'<div class="news-block-warning">⚠ High impact news detected — signals blocked for safety</div>':''}
 
       <!-- Swing section -->
       <div class="section-divider">
@@ -150,7 +179,7 @@ async function loadAll(){
         <div class="card-label">Best Signal</div>
         <div class="badge" style="background:${sb(best.type)};border-color:${sbo(best.type)}">
           <div class="badge-dot" style="background:${sc(best.type)}"></div>
-          <span style="color:${sc(best.type)}">${best.type}</span>
+          <span style="color:${sc(best.type)}">${best.type||'HOLD'}</span>
         </div>
         <div class="signal-row"><span class="row-label">Entry price</span><span class="row-value">${fmt(best.price)}</span></div>
         <div class="signal-row"><span class="row-label">Stop loss</span><span class="row-value" style="color:var(--sell)">${fmt(best.stop_loss)}</span></div>
@@ -158,13 +187,13 @@ async function loadAll(){
         <div class="signal-row"><span class="row-label">Strategy</span><span class="row-value">${best.strategy||'—'}</span></div>
         <div class="signal-row"><span class="row-label">Confidence</span><span class="row-value">${conf}%</span></div>
         <div class="conf-bar-bg"><div class="conf-bar-fill" style="width:${Math.min(conf,100)}%"></div></div>
-        <div class="reason-text">${best.reason}</div>
+        <div class="reason-text">${best.reason||'—'}</div>
       </div>
 
       <!-- All strategies -->
       <div class="section-title">All 1H Strategies</div>
       <div class="strategies-grid">
-        ${all.map(s=>`
+        ${(Array.isArray(all)?all:[]).map(s=>`
           <div class="strategy-card ${scls(s.type)}">
             <div class="strategy-left">
               <div class="strategy-name">${s.strategy}</div>
@@ -186,13 +215,10 @@ async function loadAll(){
           <div class="scalp-title">Scalp Signal</div>
           <div class="timeframe-tag">5 MIN</div>
         </div>
-
         <div class="badge" style="background:${sb(scalp.type)};border-color:${sbo(scalp.type)}">
           <div class="badge-dot" style="background:${sc(scalp.type)}"></div>
-          <span style="color:${sc(scalp.type)}">${scalp.type}</span>
+          <span style="color:${sc(scalp.type)}">${scalp.type||'HOLD'}</span>
         </div>
-
-        <!-- Indicators -->
         <div class="scalp-indicators">
           <div class="indicator-box">
             <div class="indicator-label">RSI (7)</div>
@@ -207,11 +233,32 @@ async function loadAll(){
             <div class="indicator-value" style="color:var(--gold)">${scalpConf}%</div>
           </div>
         </div>
-
         <div class="signal-row"><span class="row-label">Entry price</span><span class="row-value">${fmt(scalp.price)}</span></div>
         <div class="signal-row"><span class="row-label">Stop loss</span><span class="row-value" style="color:var(--sell)">${fmt(scalp.stop_loss)}</span></div>
         <div class="signal-row"><span class="row-label">Take profit</span><span class="row-value" style="color:var(--buy)">${fmt(scalp.take_profit)}</span></div>
-        <div class="reason-text">${scalp.reason}</div>
+        <div class="reason-text">${scalp.reason||'—'}</div>
+      </div>
+
+      <!-- News section -->
+      <div class="section-divider" style="margin-top:8px">
+        <div class="section-divider-line"></div>
+        <div class="section-divider-text">📰 Gold News</div>
+        <div class="section-divider-line"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-label">Latest News</div>
+        ${articles.length===0
+          ?'<div style="font-family:var(--mono);font-size:11px;color:var(--muted);padding:8px 0">No Gold news at the moment</div>'
+          :articles.map(a=>`
+            <div class="news-item">
+              <div class="news-headline">${a.headline}</div>
+              <div class="news-meta">
+                <span class="news-impact ${a.impact}">${a.impact}</span>
+                <span>${a.source}</span>
+                <span>${a.time}</span>
+              </div>
+            </div>`).join('')}
       </div>
 
       <!-- Stats -->
@@ -234,7 +281,7 @@ async function loadAll(){
           :log.map(h=>`<div class="log-entry"><span class="log-badge" style="background:${sb(h.type)};color:${sc(h.type)}">${h.type}</span><span class="log-strat">${h.strategy||'—'}</span><span>${fmt(h.price)}</span><span class="log-time">${timeAgo(h.logged)}</span></div>`).join('')}
       </div>
 
-      <div class="footer">1H refreshes every 60s · 5M refreshes every 30s</div>
+      <div class="footer">Refreshes every 5 mins · Trend + News filtered</div>
     `;
 
     document.getElementById('last-update').textContent='updated '+new Date().toLocaleTimeString();
@@ -247,7 +294,7 @@ async function loadAll(){
 }
 
 loadAll();
-setInterval(loadAll, 30000); // refresh every 30s for scalping
+setInterval(loadAll,300000);
 </script>
 </body>
 </html>
