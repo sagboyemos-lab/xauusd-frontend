@@ -47,43 +47,34 @@
   .strategy-name{font-size:13px;font-weight:700;margin-bottom:4px;}
   .strategy-reason{font-family:var(--mono);font-size:10px;color:var(--muted);line-height:1.4;}
   .strategy-badge{padding:4px 10px;border-radius:4px;font-size:11px;font-weight:700;letter-spacing:1px;white-space:nowrap;margin-left:10px;}
-  .trend-card{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
-  .trend-box{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center;}
-  .trend-label{font-family:var(--mono);font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;}
-  .trend-value{font-size:15px;font-weight:700;}
+  .info-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .info-box{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center;}
+  .info-box.full{grid-column:span 2;}
+  .info-label{font-family:var(--mono);font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;}
+  .info-value{font-size:15px;font-weight:700;}
   .news-item{padding:10px 0;border-bottom:1px solid var(--border);}
   .news-item:last-child{border-bottom:none;}
   .news-headline{font-size:12px;font-weight:600;line-height:1.4;margin-bottom:4px;}
   .news-meta{display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:10px;color:var(--muted);}
-  .news-impact{padding:2px 6px;border-radius:3px;font-size:9px;font-weight:700;letter-spacing:1px;}
-  .news-impact.HIGH{background:rgba(239,68,68,0.15);color:var(--sell);}
-  .news-impact.NORMAL{background:rgba(148,163,184,0.1);color:var(--muted);}
-  .news-block-warning{background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:8px;padding:10px 14px;font-family:var(--mono);font-size:11px;color:#fca5a5;margin-bottom:10px;}
+  .impact-tag{padding:2px 6px;border-radius:3px;font-size:9px;font-weight:700;letter-spacing:1px;}
+  .impact-tag.HIGH{background:rgba(239,68,68,0.15);color:var(--sell);}
+  .impact-tag.NORMAL{background:rgba(148,163,184,0.1);color:var(--muted);}
+  .warning-box{background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:8px;padding:10px 14px;font-family:var(--mono);font-size:11px;color:#fca5a5;}
   .section-divider{display:flex;align-items:center;gap:10px;margin:4px 0;}
   .section-divider-line{flex:1;height:1px;background:var(--border);}
   .section-divider-text{font-family:var(--mono);font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;white-space:nowrap;}
   .scalp-card{border-color:rgba(245,197,66,0.1);background:linear-gradient(135deg,#111113,#13121a);}
   .scalp-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
   .scalp-title{font-size:14px;font-weight:700;}
-  .timeframe-tag{font-family:var(--mono);font-size:10px;font-weight:600;padding:3px 8px;border-radius:4px;background:rgba(245,197,66,0.1);color:var(--gold);border:1px solid rgba(245,197,66,0.2);}
-  .scalp-indicators{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px;}
-  .indicator-box{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:10px;text-align:center;}
-  .indicator-label{font-family:var(--mono);font-size:9px;color:var(--muted);margin-bottom:4px;text-transform:uppercase;letter-spacing:1px;}
-  .indicator-value{font-family:var(--mono);font-size:13px;font-weight:600;}
-  /* Stats grid */
+  .tf-tag{font-family:var(--mono);font-size:10px;font-weight:600;padding:3px 8px;border-radius:4px;background:rgba(245,197,66,0.1);color:var(--gold);border:1px solid rgba(245,197,66,0.2);}
+  .indicators-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px;}
+  .ind-box{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:10px;text-align:center;}
+  .ind-label{font-family:var(--mono);font-size:9px;color:var(--muted);margin-bottom:4px;text-transform:uppercase;letter-spacing:1px;}
+  .ind-value{font-family:var(--mono);font-size:13px;font-weight:600;}
   .stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
   .stat-box{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center;}
   .stat-label{font-family:var(--mono);font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;}
   .stat-val{font-size:22px;font-weight:700;}
-  /* Calendar */
-  .cal-item{padding:10px 0;border-bottom:1px solid var(--border);}
-  .cal-item:last-child{border-bottom:none;}
-  .cal-event{font-size:12px;font-weight:600;margin-bottom:4px;}
-  .cal-meta{display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:10px;color:var(--muted);}
-  .cal-impact{padding:2px 6px;border-radius:3px;font-size:9px;font-weight:700;letter-spacing:1px;}
-  .cal-impact.HIGH{background:rgba(239,68,68,0.15);color:var(--sell);}
-  .cal-impact.NORMAL{background:rgba(148,163,184,0.1);color:var(--muted);}
-  /* Recent signals */
   .log-entry{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);font-family:var(--mono);font-size:12px;}
   .log-entry:last-child{border-bottom:none;}
   .log-badge{padding:2px 8px;border-radius:4px;font-size:10px;font-weight:700;letter-spacing:1px;}
@@ -91,14 +82,19 @@
   .log-result.WIN{background:rgba(34,197,94,0.15);color:var(--buy);}
   .log-result.LOSS{background:rgba(239,68,68,0.15);color:var(--sell);}
   .log-result.PENDING{background:rgba(148,163,184,0.1);color:var(--muted);}
+  .cal-item{padding:10px 0;border-bottom:1px solid var(--border);}
+  .cal-item:last-child{border-bottom:none;}
+  .cal-event{font-size:12px;font-weight:600;margin-bottom:4px;}
+  .cal-meta{display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:10px;color:var(--muted);flex-wrap:wrap;}
   .footer{text-align:center;font-family:var(--mono);font-size:11px;color:var(--muted);margin-top:8px;}
   .loader{display:flex;align-items:center;justify-content:center;gap:10px;padding:40px;color:var(--muted);font-family:var(--mono);font-size:12px;}
   .spin{width:16px;height:16px;border:2px solid var(--border);border-top-color:var(--gold);border-radius:50%;animation:spin 0.8s linear infinite;}
   @keyframes spin{to{transform:rotate(360deg)}}
   .section-title{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;margin-top:4px;}
-  .stats-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
-  .stat-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px;}
-  .stat-value{font-size:16px;font-weight:700;color:var(--text);margin-top:4px;}
+  .two-col{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .mini-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px;}
+  .mini-label{font-family:var(--mono);font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;}
+  .mini-value{font-size:15px;font-weight:700;}
 </style>
 </head>
 <body>
@@ -127,9 +123,11 @@ function sc(t){return t==='BUY'?'var(--buy)':t==='SELL'?'var(--sell)':'var(--hol
 function sb(t){return t==='BUY'?'rgba(34,197,94,0.15)':t==='SELL'?'rgba(239,68,68,0.15)':'rgba(148,163,184,0.1)';}
 function sbo(t){return t==='BUY'?'rgba(34,197,94,0.3)':t==='SELL'?'rgba(239,68,68,0.3)':'rgba(148,163,184,0.2)';}
 function scls(t){return t==='BUY'?'active-buy':t==='SELL'?'active-sell':'';}
-function extractIndicator(reason,key){const m=reason.match(new RegExp(key+'=([\\d.\\-]+)'));return m?m[1]:'—';}
-function trendColor(t){return t==='UPTREND'?'var(--buy)':t==='DOWNTREND'?'var(--sell)':'var(--hold)';}
-function trendEmoji(t){return t==='UPTREND'?'↑':t==='DOWNTREND'?'↓':'→';}
+function ei(r,k){const m=(r||'').match(new RegExp(k+'=([\\d.\\-]+)'));return m?m[1]:'—';}
+function tc(t){return t==='UPTREND'?'var(--buy)':t==='DOWNTREND'?'var(--sell)':'var(--hold)';}
+function te(t){return t==='UPTREND'?'↑':t==='DOWNTREND'?'↓':'→';}
+function sessionColor(s){return s==='OVERLAP'?'var(--gold)':s==='CLOSED'?'var(--sell)':'var(--buy)';}
+function sessionEmoji(s){return s==='OVERLAP'?'⭐':s==='CLOSED'?'🔴':s==='LONDON'?'🇬🇧':'🇺🇸';}
 
 async function loadAll(){
   try{
@@ -154,11 +152,13 @@ async function loadAll(){
     const conf=Math.round((best.confidence||0)*100);
     const activeCount=Array.isArray(all)?all.filter(s=>s.type!=='HOLD').length:0;
     const scalpConf=Math.round((scalp.confidence||0)*100);
-    const rsi=extractIndicator(scalp.reason||'','RSI');
-    const macd=extractIndicator(scalp.reason||'','MACD');
+    const rsi=ei(scalp.reason,'RSI');
+    const macd=ei(scalp.reason,'MACD');
     const trend=best.trend||'NEUTRAL';
     const ema200=best.ema200||0;
     const newsBlock=best.news_block||false;
+    const session=best.session||'UNKNOWN';
+    const sessionActive=best.session_active||false;
     const articles=newsData.articles||[];
     const events=calData.events||[];
     const recent=stats.recent||[];
@@ -172,21 +172,30 @@ async function loadAll(){
         <div class="price-sub">XAU/USD · live · ${activeCount} active signal${activeCount!==1?'s':''}</div>
       </div>
 
-      <!-- Trend -->
-      <div class="trend-card">
-        <div class="trend-box" style="border-color:${trendColor(trend)}33">
-          <div class="trend-label">Trend (EMA 200)</div>
-          <div class="trend-value" style="color:${trendColor(trend)}">${trendEmoji(trend)} ${trend}</div>
+      <!-- Market Info: Trend + Session + EMA -->
+      <div class="info-grid">
+        <div class="info-box" style="border-color:${tc(trend)}33">
+          <div class="info-label">Trend</div>
+          <div class="info-value" style="color:${tc(trend)}">${te(trend)} ${trend}</div>
         </div>
-        <div class="trend-box">
-          <div class="trend-label">EMA 200</div>
-          <div class="trend-value" style="color:var(--gold)">${fmt(ema200)}</div>
+        <div class="info-box" style="border-color:${sessionColor(session)}33">
+          <div class="info-label">Session</div>
+          <div class="info-value" style="color:${sessionColor(session)}">${sessionEmoji(session)} ${session}</div>
+        </div>
+        <div class="info-box">
+          <div class="info-label">EMA 200</div>
+          <div class="info-value" style="color:var(--gold)">${fmt(ema200)}</div>
+        </div>
+        <div class="info-box">
+          <div class="info-label">Trading</div>
+          <div class="info-value" style="color:${sessionActive?'var(--buy)':'var(--sell)'}">${sessionActive?'✅ ACTIVE':'🔴 CLOSED'}</div>
         </div>
       </div>
 
-      ${newsBlock?'<div class="news-block-warning">⚠ High impact news — signals blocked for safety</div>':''}
+      ${newsBlock?'<div class="warning-box">⚠ High impact news detected — signals blocked for safety</div>':''}
+      ${!sessionActive?'<div class="warning-box" style="border-color:rgba(148,163,184,0.3);color:var(--muted)">🔴 Market closed — signals resume during London/NY session</div>':''}
 
-      <!-- Win Rate Stats -->
+      <!-- Performance Stats -->
       <div class="section-divider">
         <div class="section-divider-line"></div>
         <div class="section-divider-text">📊 Performance</div>
@@ -212,7 +221,7 @@ async function loadAll(){
         </div>
       </div>
 
-      <!-- Swing section -->
+      <!-- Swing Trading -->
       <div class="section-divider">
         <div class="section-divider-line"></div>
         <div class="section-divider-text">⏱ Swing Trading · 1H</div>
@@ -246,7 +255,7 @@ async function loadAll(){
           </div>`).join('')}
       </div>
 
-      <!-- Scalp section -->
+      <!-- Scalping -->
       <div class="section-divider" style="margin-top:8px">
         <div class="section-divider-line"></div>
         <div class="section-divider-text">⚡ Scalping · 5M</div>
@@ -256,24 +265,24 @@ async function loadAll(){
       <div class="card scalp-card">
         <div class="scalp-header">
           <div class="scalp-title">Scalp Signal</div>
-          <div class="timeframe-tag">5 MIN</div>
+          <div class="tf-tag">5 MIN</div>
         </div>
         <div class="badge" style="background:${sb(scalp.type)};border-color:${sbo(scalp.type)}">
           <div class="badge-dot" style="background:${sc(scalp.type)}"></div>
           <span style="color:${sc(scalp.type)}">${scalp.type||'HOLD'}</span>
         </div>
-        <div class="scalp-indicators">
-          <div class="indicator-box">
-            <div class="indicator-label">RSI (7)</div>
-            <div class="indicator-value" style="color:${parseFloat(rsi)>50?'var(--buy)':parseFloat(rsi)<50?'var(--sell)':'var(--hold)'}">${rsi}</div>
+        <div class="indicators-grid">
+          <div class="ind-box">
+            <div class="ind-label">RSI (7)</div>
+            <div class="ind-value" style="color:${parseFloat(rsi)>50?'var(--buy)':parseFloat(rsi)<50?'var(--sell)':'var(--hold)'}">${rsi}</div>
           </div>
-          <div class="indicator-box">
-            <div class="indicator-label">MACD</div>
-            <div class="indicator-value" style="color:${parseFloat(macd)>0?'var(--buy)':parseFloat(macd)<0?'var(--sell)':'var(--hold)'}">${macd}</div>
+          <div class="ind-box">
+            <div class="ind-label">MACD</div>
+            <div class="ind-value" style="color:${parseFloat(macd)>0?'var(--buy)':parseFloat(macd)<0?'var(--sell)':'var(--hold)'}">${macd}</div>
           </div>
-          <div class="indicator-box">
-            <div class="indicator-label">Confidence</div>
-            <div class="indicator-value" style="color:var(--gold)">${scalpConf}%</div>
+          <div class="ind-box">
+            <div class="ind-label">Confidence</div>
+            <div class="ind-value" style="color:var(--gold)">${scalpConf}%</div>
           </div>
         </div>
         <div class="signal-row"><span class="row-label">Entry price</span><span class="row-value">${fmt(scalp.price)}</span></div>
@@ -290,18 +299,18 @@ async function loadAll(){
       </div>
 
       <div class="card">
-        <div class="card-label">Upcoming Events (7 days)</div>
+        <div class="card-label">Upcoming US Events (7 days)</div>
         ${events.length===0
           ?'<div style="font-family:var(--mono);font-size:11px;color:var(--muted);padding:8px 0">No major US events this week</div>'
           :events.map(e=>`
             <div class="cal-item">
               <div class="cal-event">${e.event}</div>
               <div class="cal-meta">
-                <span class="cal-impact ${e.impact}">${e.impact}</span>
+                <span class="impact-tag ${e.impact}">${e.impact}</span>
                 <span>${e.date}</span>
                 <span>${e.time}</span>
-                ${e.estimate?`<span>Est: ${e.estimate}</span>`:''}
-                ${e.prev?`<span>Prev: ${e.prev}</span>`:''}
+                ${e.estimate!=null?`<span>Est: ${e.estimate}</span>`:''}
+                ${e.prev!=null?`<span>Prev: ${e.prev}</span>`:''}
               </div>
             </div>`).join('')}
       </div>
@@ -321,14 +330,14 @@ async function loadAll(){
             <div class="news-item">
               <div class="news-headline">${a.headline}</div>
               <div class="news-meta">
-                <span class="news-impact ${a.impact}">${a.impact}</span>
+                <span class="impact-tag ${a.impact}">${a.impact}</span>
                 <span>${a.source}</span>
                 <span>${a.time}</span>
               </div>
             </div>`).join('')}
       </div>
 
-      <!-- Recent signals from tracker -->
+      <!-- Recent Signals -->
       <div class="section-divider" style="margin-top:8px">
         <div class="section-divider-line"></div>
         <div class="section-divider-text">🕒 Recent Signals</div>
@@ -342,25 +351,25 @@ async function loadAll(){
           :recent.map(h=>`
             <div class="log-entry">
               <span class="log-badge" style="background:${sb(h.type)};color:${sc(h.type)}">${h.type}</span>
-              <span style="flex:1;margin:0 8px;font-size:11px;color:var(--muted)">${h.strategy||'—'}</span>
-              <span style="margin-right:8px">${fmt(h.price)}</span>
+              <span style="flex:1;margin:0 8px;font-size:10px;color:var(--muted)">${h.strategy||'—'}</span>
+              <span style="margin-right:8px;font-size:11px">${fmt(h.price)}</span>
               <span class="log-result ${h.result}">${h.result}</span>
             </div>`).join('')}
       </div>
 
-      <!-- Bottom stats -->
-      <div class="stats-row">
-        <div class="stat-card">
-          <div class="card-label">Total Signals</div>
-          <div class="stat-value">${stats.total_signals}</div>
+      <!-- Bottom Stats -->
+      <div class="two-col">
+        <div class="mini-card">
+          <div class="mini-label">Total Signals</div>
+          <div class="mini-value">${stats.total_signals}</div>
         </div>
-        <div class="stat-card">
-          <div class="card-label">Pending</div>
-          <div class="stat-value" style="color:var(--gold)">${stats.pending}</div>
+        <div class="mini-card">
+          <div class="mini-label">Pending</div>
+          <div class="mini-value" style="color:var(--gold)">${stats.pending}</div>
         </div>
       </div>
 
-      <div class="footer">Refreshes every 5 mins · Trend + News + Calendar filtered</div>
+      <div class="footer">Refreshes every 5 mins · Trend + News + Session filtered</div>
     `;
 
     document.getElementById('last-update').textContent='updated '+new Date().toLocaleTimeString();
