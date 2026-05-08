@@ -24,6 +24,7 @@
   .refresh-btn:hover{border-color:var(--gold);color:var(--gold);}
   .content{padding:16px;display:flex;flex-direction:column;gap:12px;}
   .error-box{background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#fca5a5;padding:12px 16px;border-radius:10px;font-family:var(--mono);font-size:12px;display:none;}
+  .api-warning{background:rgba(245,197,66,0.1);border:1px solid rgba(245,197,66,0.3);color:var(--gold);padding:12px 16px;border-radius:10px;font-family:var(--mono);font-size:12px;display:none;}
   .card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px;animation:fadeUp 0.4s ease both;}
   @keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
   .card-label{font-family:var(--mono);font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);margin-bottom:10px;}
@@ -49,7 +50,6 @@
   .strategy-badge{padding:4px 10px;border-radius:4px;font-size:11px;font-weight:700;letter-spacing:1px;white-space:nowrap;margin-left:10px;}
   .info-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
   .info-box{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center;}
-  .info-box.full{grid-column:span 2;}
   .info-label{font-family:var(--mono);font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;}
   .info-value{font-size:15px;font-weight:700;}
   .news-item{padding:10px 0;border-bottom:1px solid var(--border);}
@@ -111,6 +111,7 @@
   </header>
   <div class="content">
     <div id="error-box" class="error-box"></div>
+    <div id="api-warning" class="api-warning">⚠ API credits exhausted — data will resume at midnight UTC. Session info still live.</div>
     <div id="main-content"><div class="loader"><div class="spin"></div> Loading Gold data...</div></div>
   </div>
 </div>
@@ -124,55 +125,63 @@ function sb(t){return t==='BUY'?'rgba(34,197,94,0.15)':t==='SELL'?'rgba(239,68,6
 function sbo(t){return t==='BUY'?'rgba(34,197,94,0.3)':t==='SELL'?'rgba(239,68,68,0.3)':'rgba(148,163,184,0.2)';}
 function scls(t){return t==='BUY'?'active-buy':t==='SELL'?'active-sell':'';}
 function ei(r,k){const m=(r||'').match(new RegExp(k+'=([\\d.\\-]+)'));return m?m[1]:'—';}
-function tc(t){return t==='UPTREND'?'var(--buy)':t==='DOWNTREND'?'var(--sell)':'var(--hold)';}
-function te(t){return t==='UPTREND'?'↑':t==='DOWNTREND'?'↓':'→';}
+function tc(t){return t&&t.includes('UP')?'var(--buy)':t&&t.includes('DOWN')?'var(--sell)':'var(--hold)';}
+function te(t){return t&&t.includes('UP')?'↑':t&&t.includes('DOWN')?'↓':'→';}
 function sessionColor(s){return s==='OVERLAP'?'var(--gold)':s==='CLOSED'?'var(--sell)':'var(--buy)';}
-function sessionEmoji(s){return s==='OVERLAP'?'⭐':s==='CLOSED'?'🔴':s==='LONDON'?'🇬🇧':'🇺🇸';}
+function sessionEmoji(s){return s==='OVERLAP'?'⭐':s==='CLOSED'?'🔴':s==='LONDON'?'🇬🇧':s==='NEW_YORK'?'🇺🇸':'🌐';}
+
+async function safeFetch(url){
+  try{const r=await fetch(url);return await r.json();}catch(e){return null;}
+}
 
 async function loadAll(){
   try{
-    const[sigRes,allRes,scalpRes,newsRes,calRes,statsRes]=await Promise.all([
-      fetch(API+'/signal'),
-      fetch(API+'/all-signals'),
-      fetch(API+'/scalp-signal'),
-      fetch(API+'/news'),
-      fetch(API+'/calendar'),
-      fetch(API+'/stats'),
+    // Always fetch session separately so it works even when API credits are out
+    const[best,all,scalp,newsData,calData,stats,sessionData]=await Promise.all([
+      safeFetch(API+'/signal'),
+      safeFetch(API+'/all-signals'),
+      safeFetch(API+'/scalp-signal'),
+      safeFetch(API+'/news'),
+      safeFetch(API+'/calendar'),
+      safeFetch(API+'/stats'),
+      safeFetch(API+'/session'),
     ]);
-    const best=await sigRes.json();
-    const all=await allRes.json();
-    const scalp=await scalpRes.json();
-    const newsData=await newsRes.json();
-    const calData=await calRes.json();
-    const stats=await statsRes.json();
 
-    if(best.price) log.unshift({...best,logged:new Date().toISOString()});
+    // Check if API credits are exhausted
+    const apiDown = !best || best.detail || !best.price;
+    document.getElementById('api-warning').style.display = apiDown ? 'block' : 'none';
+
+    // Use session from dedicated endpoint (always works)
+    const session       = sessionData?.session || best?.session || 'UNKNOWN';
+    const sessionActive = sessionData?.is_active ?? best?.session_active ?? false;
+    const utcTime       = sessionData?.utc_time || '—';
+
+    const trend    = best?.trend || 'NEUTRAL';
+    const ema200   = best?.ema200 || 0;
+    const newsBlock = best?.news_block || false;
+    const articles  = newsData?.articles || [];
+    const events    = calData?.events || [];
+    const recent    = stats?.recent || [];
+    const conf      = Math.round((best?.confidence||0)*100);
+    const activeCount = Array.isArray(all)?all.filter(s=>s.type!=='HOLD').length:0;
+    const scalpConf = Math.round((scalp?.confidence||0)*100);
+    const rsi  = ei(scalp?.reason,'RSI');
+    const macd = ei(scalp?.reason,'MACD');
+    const allScalp = scalp?.all_scalp || [];
+
+    if(best?.price) log.unshift({...best,logged:new Date().toISOString()});
     if(log.length>15)log.pop();
-
-    const conf=Math.round((best.confidence||0)*100);
-    const activeCount=Array.isArray(all)?all.filter(s=>s.type!=='HOLD').length:0;
-    const scalpConf=Math.round((scalp.confidence||0)*100);
-    const rsi=ei(scalp.reason,'RSI');
-    const macd=ei(scalp.reason,'MACD');
-    const trend=best.trend||'NEUTRAL';
-    const ema200=best.ema200||0;
-    const newsBlock=best.news_block||false;
-    const session=best.session||'UNKNOWN';
-    const sessionActive=best.session_active||false;
-    const articles=newsData.articles||[];
-    const events=calData.events||[];
-    const recent=stats.recent||[];
 
     document.getElementById('main-content').innerHTML=`
 
       <!-- Price -->
       <div class="card price-card">
         <div class="card-label">Gold Price</div>
-        <div class="price-value">${fmt(best.price)}</div>
-        <div class="price-sub">XAU/USD · live · ${activeCount} active signal${activeCount!==1?'s':''}</div>
+        <div class="price-value">${best?.price ? fmt(best.price) : '—'}</div>
+        <div class="price-sub">XAU/USD · ${utcTime} · ${activeCount} active signal${activeCount!==1?'s':''}</div>
       </div>
 
-      <!-- Market Info: Trend + Session + EMA -->
+      <!-- Market Info -->
       <div class="info-grid">
         <div class="info-box" style="border-color:${tc(trend)}33">
           <div class="info-label">Trend</div>
@@ -184,7 +193,7 @@ async function loadAll(){
         </div>
         <div class="info-box">
           <div class="info-label">EMA 200</div>
-          <div class="info-value" style="color:var(--gold)">${fmt(ema200)}</div>
+          <div class="info-value" style="color:var(--gold)">${ema200 ? fmt(ema200) : '—'}</div>
         </div>
         <div class="info-box">
           <div class="info-label">Trading</div>
@@ -192,32 +201,31 @@ async function loadAll(){
         </div>
       </div>
 
-      ${newsBlock?'<div class="warning-box">⚠ High impact news detected — signals blocked for safety</div>':''}
-      ${!sessionActive?'<div class="warning-box" style="border-color:rgba(148,163,184,0.3);color:var(--muted)">🔴 Market closed — signals resume during London/NY session</div>':''}
+      ${newsBlock?'<div class="warning-box">⚠ High impact news — signals blocked for safety</div>':''}
+      ${!sessionActive?'<div class="warning-box" style="border-color:rgba(148,163,184,0.3);color:var(--muted)">🔴 Market closed — signals resume during London/NY session (07:00-22:00 UTC)</div>':''}
 
-      <!-- Performance Stats -->
+      <!-- Performance -->
       <div class="section-divider">
         <div class="section-divider-line"></div>
         <div class="section-divider-text">📊 Performance</div>
         <div class="section-divider-line"></div>
       </div>
-
       <div class="stats-grid">
         <div class="stat-box">
           <div class="stat-label">Win Rate</div>
-          <div class="stat-val" style="color:${stats.win_rate>=50?'var(--buy)':'var(--sell)'}">${stats.win_rate}%</div>
+          <div class="stat-val" style="color:${(stats?.win_rate||0)>=50?'var(--buy)':'var(--sell)'}">${stats?.win_rate||0}%</div>
         </div>
         <div class="stat-box">
           <div class="stat-label">Total P&L</div>
-          <div class="stat-val" style="color:${stats.total_pnl>=0?'var(--buy)':'var(--sell)'}">${stats.total_pnl>=0?'+':''}${stats.total_pnl}</div>
+          <div class="stat-val" style="color:${(stats?.total_pnl||0)>=0?'var(--buy)':'var(--sell)'}">${(stats?.total_pnl||0)>=0?'+':''}${stats?.total_pnl||0}</div>
         </div>
         <div class="stat-box">
           <div class="stat-label">Wins</div>
-          <div class="stat-val" style="color:var(--buy)">${stats.wins}</div>
+          <div class="stat-val" style="color:var(--buy)">${stats?.wins||0}</div>
         </div>
         <div class="stat-box">
           <div class="stat-label">Losses</div>
-          <div class="stat-val" style="color:var(--sell)">${stats.losses}</div>
+          <div class="stat-val" style="color:var(--sell)">${stats?.losses||0}</div>
         </div>
       </div>
 
@@ -227,20 +235,19 @@ async function loadAll(){
         <div class="section-divider-text">⏱ Swing Trading · 1H</div>
         <div class="section-divider-line"></div>
       </div>
-
       <div class="card" style="border-color:rgba(245,197,66,0.15)">
         <div class="card-label">Best Signal</div>
-        <div class="badge" style="background:${sb(best.type)};border-color:${sbo(best.type)}">
-          <div class="badge-dot" style="background:${sc(best.type)}"></div>
-          <span style="color:${sc(best.type)}">${best.type||'HOLD'}</span>
+        <div class="badge" style="background:${sb(best?.type)};border-color:${sbo(best?.type)}">
+          <div class="badge-dot" style="background:${sc(best?.type)}"></div>
+          <span style="color:${sc(best?.type)}">${best?.type||'HOLD'}</span>
         </div>
-        <div class="signal-row"><span class="row-label">Entry price</span><span class="row-value">${fmt(best.price)}</span></div>
-        <div class="signal-row"><span class="row-label">Stop loss</span><span class="row-value" style="color:var(--sell)">${fmt(best.stop_loss)}</span></div>
-        <div class="signal-row"><span class="row-label">Take profit</span><span class="row-value" style="color:var(--buy)">${fmt(best.take_profit)}</span></div>
-        <div class="signal-row"><span class="row-label">Strategy</span><span class="row-value">${best.strategy||'—'}</span></div>
+        <div class="signal-row"><span class="row-label">Entry price</span><span class="row-value">${fmt(best?.price)}</span></div>
+        <div class="signal-row"><span class="row-label">Stop loss</span><span class="row-value" style="color:var(--sell)">${fmt(best?.stop_loss)}</span></div>
+        <div class="signal-row"><span class="row-label">Take profit</span><span class="row-value" style="color:var(--buy)">${fmt(best?.take_profit)}</span></div>
+        <div class="signal-row"><span class="row-label">Strategy</span><span class="row-value">${best?.strategy||'—'}</span></div>
         <div class="signal-row"><span class="row-label">Confidence</span><span class="row-value">${conf}%</span></div>
         <div class="conf-bar-bg"><div class="conf-bar-fill" style="width:${Math.min(conf,100)}%"></div></div>
-        <div class="reason-text">${best.reason||'—'}</div>
+        <div class="reason-text">${best?.reason||'—'}</div>
       </div>
 
       <div class="section-title">All 1H Strategies</div>
@@ -261,15 +268,14 @@ async function loadAll(){
         <div class="section-divider-text">⚡ Scalping · 5M</div>
         <div class="section-divider-line"></div>
       </div>
-
       <div class="card scalp-card">
         <div class="scalp-header">
-          <div class="scalp-title">Scalp Signal</div>
-          <div class="tf-tag">5 MIN</div>
+          <div class="scalp-title">Best Scalp Signal</div>
+          <div class="tf-tag">5 MIN · 6 strategies</div>
         </div>
-        <div class="badge" style="background:${sb(scalp.type)};border-color:${sbo(scalp.type)}">
-          <div class="badge-dot" style="background:${sc(scalp.type)}"></div>
-          <span style="color:${sc(scalp.type)}">${scalp.type||'HOLD'}</span>
+        <div class="badge" style="background:${sb(scalp?.type)};border-color:${sbo(scalp?.type)}">
+          <div class="badge-dot" style="background:${sc(scalp?.type)}"></div>
+          <span style="color:${sc(scalp?.type)}">${scalp?.type||'HOLD'}</span>
         </div>
         <div class="indicators-grid">
           <div class="ind-box">
@@ -285,11 +291,24 @@ async function loadAll(){
             <div class="ind-value" style="color:var(--gold)">${scalpConf}%</div>
           </div>
         </div>
-        <div class="signal-row"><span class="row-label">Entry price</span><span class="row-value">${fmt(scalp.price)}</span></div>
-        <div class="signal-row"><span class="row-label">Stop loss</span><span class="row-value" style="color:var(--sell)">${fmt(scalp.stop_loss)}</span></div>
-        <div class="signal-row"><span class="row-label">Take profit</span><span class="row-value" style="color:var(--buy)">${fmt(scalp.take_profit)}</span></div>
-        <div class="reason-text">${scalp.reason||'—'}</div>
+        <div class="signal-row"><span class="row-label">Entry price</span><span class="row-value">${fmt(scalp?.price)}</span></div>
+        <div class="signal-row"><span class="row-label">Stop loss</span><span class="row-value" style="color:var(--sell)">${fmt(scalp?.stop_loss)}</span></div>
+        <div class="signal-row"><span class="row-label">Take profit</span><span class="row-value" style="color:var(--buy)">${fmt(scalp?.take_profit)}</span></div>
+        <div class="reason-text">${scalp?.reason||'—'}</div>
       </div>
+
+      ${allScalp.length>0?`
+      <div class="section-title">All 5M Strategies</div>
+      <div class="strategies-grid">
+        ${allScalp.map(s=>`
+          <div class="strategy-card ${scls(s.type)}">
+            <div class="strategy-left">
+              <div class="strategy-name">${s.strategy}</div>
+              <div class="strategy-reason">${s.reason}</div>
+            </div>
+            <div class="strategy-badge" style="background:${sb(s.type)};color:${sc(s.type)};border:1px solid ${sbo(s.type)}">${s.type}</div>
+          </div>`).join('')}
+      </div>`:''}
 
       <!-- Economic Calendar -->
       <div class="section-divider" style="margin-top:8px">
@@ -297,7 +316,6 @@ async function loadAll(){
         <div class="section-divider-text">📅 Economic Calendar</div>
         <div class="section-divider-line"></div>
       </div>
-
       <div class="card">
         <div class="card-label">Upcoming US Events (7 days)</div>
         ${events.length===0
@@ -321,7 +339,6 @@ async function loadAll(){
         <div class="section-divider-text">📰 Gold News</div>
         <div class="section-divider-line"></div>
       </div>
-
       <div class="card">
         <div class="card-label">Latest News</div>
         ${articles.length===0
@@ -343,7 +360,6 @@ async function loadAll(){
         <div class="section-divider-text">🕒 Recent Signals</div>
         <div class="section-divider-line"></div>
       </div>
-
       <div class="card">
         <div class="card-label">Signal History</div>
         ${recent.length===0
@@ -361,15 +377,15 @@ async function loadAll(){
       <div class="two-col">
         <div class="mini-card">
           <div class="mini-label">Total Signals</div>
-          <div class="mini-value">${stats.total_signals}</div>
+          <div class="mini-value">${stats?.total_signals||0}</div>
         </div>
         <div class="mini-card">
           <div class="mini-label">Pending</div>
-          <div class="mini-value" style="color:var(--gold)">${stats.pending}</div>
+          <div class="mini-value" style="color:var(--gold)">${stats?.pending||0}</div>
         </div>
       </div>
 
-      <div class="footer">Refreshes every 5 mins · Trend + News + Session filtered</div>
+      <div class="footer">Refreshes every 5 mins · 3 swing + 6 scalp strategies · Session always live</div>
     `;
 
     document.getElementById('last-update').textContent='updated '+new Date().toLocaleTimeString();
