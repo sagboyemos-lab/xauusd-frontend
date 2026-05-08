@@ -47,12 +47,10 @@
   .strategy-name{font-size:13px;font-weight:700;margin-bottom:4px;}
   .strategy-reason{font-family:var(--mono);font-size:10px;color:var(--muted);line-height:1.4;}
   .strategy-badge{padding:4px 10px;border-radius:4px;font-size:11px;font-weight:700;letter-spacing:1px;white-space:nowrap;margin-left:10px;}
-  /* Trend card */
   .trend-card{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
   .trend-box{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center;}
   .trend-label{font-family:var(--mono);font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;}
   .trend-value{font-size:15px;font-weight:700;}
-  /* News card */
   .news-item{padding:10px 0;border-bottom:1px solid var(--border);}
   .news-item:last-child{border-bottom:none;}
   .news-headline{font-size:12px;font-weight:600;line-height:1.4;margin-bottom:4px;}
@@ -61,7 +59,6 @@
   .news-impact.HIGH{background:rgba(239,68,68,0.15);color:var(--sell);}
   .news-impact.NORMAL{background:rgba(148,163,184,0.1);color:var(--muted);}
   .news-block-warning{background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:8px;padding:10px 14px;font-family:var(--mono);font-size:11px;color:#fca5a5;margin-bottom:10px;}
-  /* Scalp section */
   .section-divider{display:flex;align-items:center;gap:10px;margin:4px 0;}
   .section-divider-line{flex:1;height:1px;background:var(--border);}
   .section-divider-text{font-family:var(--mono);font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;white-space:nowrap;}
@@ -73,19 +70,35 @@
   .indicator-box{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:10px;text-align:center;}
   .indicator-label{font-family:var(--mono);font-size:9px;color:var(--muted);margin-bottom:4px;text-transform:uppercase;letter-spacing:1px;}
   .indicator-value{font-family:var(--mono);font-size:13px;font-weight:600;}
-  .stats-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
-  .stat-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px;}
-  .stat-value{font-size:16px;font-weight:700;color:var(--text);margin-top:4px;}
+  /* Stats grid */
+  .stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .stat-box{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center;}
+  .stat-label{font-family:var(--mono);font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;}
+  .stat-val{font-size:22px;font-weight:700;}
+  /* Calendar */
+  .cal-item{padding:10px 0;border-bottom:1px solid var(--border);}
+  .cal-item:last-child{border-bottom:none;}
+  .cal-event{font-size:12px;font-weight:600;margin-bottom:4px;}
+  .cal-meta{display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:10px;color:var(--muted);}
+  .cal-impact{padding:2px 6px;border-radius:3px;font-size:9px;font-weight:700;letter-spacing:1px;}
+  .cal-impact.HIGH{background:rgba(239,68,68,0.15);color:var(--sell);}
+  .cal-impact.NORMAL{background:rgba(148,163,184,0.1);color:var(--muted);}
+  /* Recent signals */
   .log-entry{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);font-family:var(--mono);font-size:12px;}
   .log-entry:last-child{border-bottom:none;}
   .log-badge{padding:2px 8px;border-radius:4px;font-size:10px;font-weight:700;letter-spacing:1px;}
-  .log-strat{flex:1;margin:0 8px;color:var(--muted);font-size:10px;}
-  .log-time{color:var(--muted);font-size:10px;}
+  .log-result{padding:2px 8px;border-radius:4px;font-size:10px;font-weight:700;}
+  .log-result.WIN{background:rgba(34,197,94,0.15);color:var(--buy);}
+  .log-result.LOSS{background:rgba(239,68,68,0.15);color:var(--sell);}
+  .log-result.PENDING{background:rgba(148,163,184,0.1);color:var(--muted);}
   .footer{text-align:center;font-family:var(--mono);font-size:11px;color:var(--muted);margin-top:8px;}
   .loader{display:flex;align-items:center;justify-content:center;gap:10px;padding:40px;color:var(--muted);font-family:var(--mono);font-size:12px;}
   .spin{width:16px;height:16px;border:2px solid var(--border);border-top-color:var(--gold);border-radius:50%;animation:spin 0.8s linear infinite;}
   @keyframes spin{to{transform:rotate(360deg)}}
   .section-title{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;margin-top:4px;}
+  .stats-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .stat-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px;}
+  .stat-value{font-size:16px;font-weight:700;color:var(--text);margin-top:4px;}
 </style>
 </head>
 <body>
@@ -120,16 +133,20 @@ function trendEmoji(t){return t==='UPTREND'?'↑':t==='DOWNTREND'?'↓':'→';}
 
 async function loadAll(){
   try{
-    const[sigRes,allRes,scalpRes,newsRes]=await Promise.all([
+    const[sigRes,allRes,scalpRes,newsRes,calRes,statsRes]=await Promise.all([
       fetch(API+'/signal'),
       fetch(API+'/all-signals'),
       fetch(API+'/scalp-signal'),
       fetch(API+'/news'),
+      fetch(API+'/calendar'),
+      fetch(API+'/stats'),
     ]);
     const best=await sigRes.json();
     const all=await allRes.json();
     const scalp=await scalpRes.json();
     const newsData=await newsRes.json();
+    const calData=await calRes.json();
+    const stats=await statsRes.json();
 
     if(best.price) log.unshift({...best,logged:new Date().toISOString()});
     if(log.length>15)log.pop();
@@ -143,17 +160,19 @@ async function loadAll(){
     const ema200=best.ema200||0;
     const newsBlock=best.news_block||false;
     const articles=newsData.articles||[];
+    const events=calData.events||[];
+    const recent=stats.recent||[];
 
     document.getElementById('main-content').innerHTML=`
 
-      <!-- Price + Trend -->
+      <!-- Price -->
       <div class="card price-card">
         <div class="card-label">Gold Price</div>
         <div class="price-value">${fmt(best.price)}</div>
         <div class="price-sub">XAU/USD · live · ${activeCount} active signal${activeCount!==1?'s':''}</div>
       </div>
 
-      <!-- Trend Info -->
+      <!-- Trend -->
       <div class="trend-card">
         <div class="trend-box" style="border-color:${trendColor(trend)}33">
           <div class="trend-label">Trend (EMA 200)</div>
@@ -165,7 +184,33 @@ async function loadAll(){
         </div>
       </div>
 
-      ${newsBlock?'<div class="news-block-warning">⚠ High impact news detected — signals blocked for safety</div>':''}
+      ${newsBlock?'<div class="news-block-warning">⚠ High impact news — signals blocked for safety</div>':''}
+
+      <!-- Win Rate Stats -->
+      <div class="section-divider">
+        <div class="section-divider-line"></div>
+        <div class="section-divider-text">📊 Performance</div>
+        <div class="section-divider-line"></div>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-box">
+          <div class="stat-label">Win Rate</div>
+          <div class="stat-val" style="color:${stats.win_rate>=50?'var(--buy)':'var(--sell)'}">${stats.win_rate}%</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Total P&L</div>
+          <div class="stat-val" style="color:${stats.total_pnl>=0?'var(--buy)':'var(--sell)'}">${stats.total_pnl>=0?'+':''}${stats.total_pnl}</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Wins</div>
+          <div class="stat-val" style="color:var(--buy)">${stats.wins}</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Losses</div>
+          <div class="stat-val" style="color:var(--sell)">${stats.losses}</div>
+        </div>
+      </div>
 
       <!-- Swing section -->
       <div class="section-divider">
@@ -174,7 +219,6 @@ async function loadAll(){
         <div class="section-divider-line"></div>
       </div>
 
-      <!-- Best signal -->
       <div class="card" style="border-color:rgba(245,197,66,0.15)">
         <div class="card-label">Best Signal</div>
         <div class="badge" style="background:${sb(best.type)};border-color:${sbo(best.type)}">
@@ -190,7 +234,6 @@ async function loadAll(){
         <div class="reason-text">${best.reason||'—'}</div>
       </div>
 
-      <!-- All strategies -->
       <div class="section-title">All 1H Strategies</div>
       <div class="strategies-grid">
         ${(Array.isArray(all)?all:[]).map(s=>`
@@ -239,7 +282,31 @@ async function loadAll(){
         <div class="reason-text">${scalp.reason||'—'}</div>
       </div>
 
-      <!-- News section -->
+      <!-- Economic Calendar -->
+      <div class="section-divider" style="margin-top:8px">
+        <div class="section-divider-line"></div>
+        <div class="section-divider-text">📅 Economic Calendar</div>
+        <div class="section-divider-line"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-label">Upcoming Events (7 days)</div>
+        ${events.length===0
+          ?'<div style="font-family:var(--mono);font-size:11px;color:var(--muted);padding:8px 0">No major US events this week</div>'
+          :events.map(e=>`
+            <div class="cal-item">
+              <div class="cal-event">${e.event}</div>
+              <div class="cal-meta">
+                <span class="cal-impact ${e.impact}">${e.impact}</span>
+                <span>${e.date}</span>
+                <span>${e.time}</span>
+                ${e.estimate?`<span>Est: ${e.estimate}</span>`:''}
+                ${e.prev?`<span>Prev: ${e.prev}</span>`:''}
+              </div>
+            </div>`).join('')}
+      </div>
+
+      <!-- News -->
       <div class="section-divider" style="margin-top:8px">
         <div class="section-divider-line"></div>
         <div class="section-divider-text">📰 Gold News</div>
@@ -261,27 +328,39 @@ async function loadAll(){
             </div>`).join('')}
       </div>
 
-      <!-- Stats -->
-      <div class="stats-row">
-        <div class="stat-card">
-          <div class="card-label">1H Strategy</div>
-          <div class="stat-value" style="font-size:12px">${best.strategy||'—'}</div>
-        </div>
-        <div class="stat-card">
-          <div class="card-label">Risk/Reward</div>
-          <div class="stat-value">1 : 2</div>
-        </div>
+      <!-- Recent signals from tracker -->
+      <div class="section-divider" style="margin-top:8px">
+        <div class="section-divider-line"></div>
+        <div class="section-divider-text">🕒 Recent Signals</div>
+        <div class="section-divider-line"></div>
       </div>
 
-      <!-- History -->
       <div class="card">
         <div class="card-label">Signal History</div>
-        ${log.length===0
-          ?'<div style="font-family:var(--mono);font-size:11px;color:var(--muted);padding:8px 0">No signals yet this session</div>'
-          :log.map(h=>`<div class="log-entry"><span class="log-badge" style="background:${sb(h.type)};color:${sc(h.type)}">${h.type}</span><span class="log-strat">${h.strategy||'—'}</span><span>${fmt(h.price)}</span><span class="log-time">${timeAgo(h.logged)}</span></div>`).join('')}
+        ${recent.length===0
+          ?'<div style="font-family:var(--mono);font-size:11px;color:var(--muted);padding:8px 0">No signals recorded yet</div>'
+          :recent.map(h=>`
+            <div class="log-entry">
+              <span class="log-badge" style="background:${sb(h.type)};color:${sc(h.type)}">${h.type}</span>
+              <span style="flex:1;margin:0 8px;font-size:11px;color:var(--muted)">${h.strategy||'—'}</span>
+              <span style="margin-right:8px">${fmt(h.price)}</span>
+              <span class="log-result ${h.result}">${h.result}</span>
+            </div>`).join('')}
       </div>
 
-      <div class="footer">Refreshes every 5 mins · Trend + News filtered</div>
+      <!-- Bottom stats -->
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="card-label">Total Signals</div>
+          <div class="stat-value">${stats.total_signals}</div>
+        </div>
+        <div class="stat-card">
+          <div class="card-label">Pending</div>
+          <div class="stat-value" style="color:var(--gold)">${stats.pending}</div>
+        </div>
+      </div>
+
+      <div class="footer">Refreshes every 5 mins · Trend + News + Calendar filtered</div>
     `;
 
     document.getElementById('last-update').textContent='updated '+new Date().toLocaleTimeString();
